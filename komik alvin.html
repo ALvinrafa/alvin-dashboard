@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baca Komik</title>
+    <style>
+        :root {
+            --primary: #ff4757;
+            --primary-dark: #e84118;
+            --bg: #1e272e;
+            --card-bg: #2f3640;
+            --text: #f5f6fa;
+            --text-secondary: #dcdde1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .manga-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .manga-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .manga-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .manga-cover {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .manga-info {
+            padding: 1rem;
+        }
+
+        .manga-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .manga-genres {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .genre {
+            background-color: var(--primary);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+        }
+
+        .read-btn {
+            width: 100%;
+            padding: 0.7rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .read-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Reader Modal */
+        .reader-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .reader-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--text-secondary);
+        }
+
+        .reader-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .reader-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .manga-page {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .reader-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+
+        .nav-btn {
+            padding: 0.7rem 1.5rem;
+            background-color: var(--card-bg);
+            color: var(--text);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .chapter-selector {
+            padding: 0.7rem;
+            background-color: var(--card-bg);
+            color: var(--text);
+            border: none;
+            border-radius: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .manga-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+            
+            .manga-cover {
+                height: 280px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .manga-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        .book{
+                position: relative;
+                width: 220px;              /* sesuaikan */
+                aspect-ratio: 3/4;         /* atau height tetap */
+                overflow: hidden;
+                border-radius: 10px;
+        }
+        .book img{ width:100%; height:100%; object-fit: cover; display:block; }
+
+        .ribbon{
+                position: absolute;
+                top: 12px;                 /* geser posisi */
+                right: -40px;              /* geser supaya pas di pojok */
+                transform: rotate(35deg);  /* kemiringan */
+                background: gold;
+                color: black;
+                padding: 5px 60px;         /* panjang pita */
+                font-weight: 700;
+                letter-spacing: .5px;
+                box-shadow: 0 6px 18px rgba(0,0,0,.35);
+                pointer-events: none;      /* biar nggak ganggu klik */
+                }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 10px;
+            background-color: var(--card-bg);
+            color: white;}
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Selamat Datang</h1>
+        <p class="subtitle">Baca komik favoritmu secara online</p>
+    </header>
+
+    <main>
+        <div class="manga-grid" class="book">
+            <!-- Dandadan -->
+            <div class="manga-card" data-manga-id="one-piece">
+                <span class="ribbon">Terbaik</span>
+                <img src="cover 1.jpg" class="manga-cover" />
+                <div class="manga-info">
+                    <h3 class="manga-title">Dandadan extra chapter 🔥</h3>
+                    <div class="manga-genres">
+                        <span class="genre">Action</span>
+                        <span class="genre">Adventure</span>
+                        <span class="genre">Romance</span>
+                        <span class="genre">Sci-Fi</span>
+                    </div>
+                    <button class="read-btn" >Baca Sekarang</button>
+                </div>
+            </div>
+
+            <!-- Boruto -->
+            <div class="manga-card" data-manga-id="naruto">
+                <img src="cover 2.jpg" class="manga-cover" />
+                <div class="manga-info">
+                    <h3 class="manga-title">Boruto two blue softex 🤮</h3>
+                    <div class="manga-genres">
+                        <span class="genre">Action</span>
+                        <span class="genre">Adventure</span>
+                        <span class="genre">Shounen</span>
+                    </div>
+                    <button class="read-btn" onclick="window.open('https://komiku.org/manga/boruto-two-blue-vortex/', '_blank')">Baca di KOMIKU</button>
+                </div>
+            </div>
+
+            <!--  One piece -->
+            <div class="manga-card" data-manga-id="attack-on-titan">
+                <img src="cover 3.jpg" class="manga-cover" />
+                <div class="manga-info">
+                    <h3 class="manga-title">One piece 😊</h3>
+                    <div class="manga-genres">
+                        <span class="genre">Action</span>
+                        <span class="genre">Comedi</span>
+                        <span class="genre">Shounen</span>
+                    </div>
+                    <button class="read-btn" onclick="window.open('https://komiku.org/manga/komik-one-piece-indo/', '_blank')">Baca di KOMIKU</button>
+                </div>
+            </div>
+
+            <!-- Death note -->
+            <div class="manga-card" data-manga-id="jujutsu-kaisen">
+                <img src="cover 4.jpg" class="manga-cover" />
+                <div class="manga-info">
+                    <h3 class="manga-title">Death note 😎</h3>
+                    <div class="manga-genres">
+                        <span class="genre">Action</span>
+                        <span class="genre">Misteri</span>
+                        <span class="genre">Horror</span>
+                    </div>
+                    <button class="read-btn" onclick="window.open('https://komiku.org/manga/death-note/', '_blank')">Baca di KOMIKU</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Reader Modal -->
+    <div class="reader-modal" id="readerModal">
+        <div class="reader-header">
+            <h2 class="reader-title" id="readerTitle">One Piece - Chapter 1</h2>
+            <button class="close-btn" id="closeReader">&times;</button>
+        </div>
+        <div class="reader-content" id="readerContent">
+            <!-- Manga pages will be loaded here -->
+        </div>
+        <div class="reader-controls">
+            <button class="nav-btn" id="prevPage" disabled>Sebelumnya</button>
+            <select class="chapter-selector" id="chapterSelector">
+                <option value="1">Chapter 1</option>
+                <option value="2">Chapter 2</option>
+                <option value="3">Chapter 3</option>
+                <option value="4">Chapter 4</option>
+                <option value="5">Chapter 5</option>
+                <option value="6">Chapter 6</option>
+                <option value="7">Chapter 7</option>
+                <option value="8">Chapter 8</option>
+            </select>
+            <button class="nav-btn" id="nextPage">Berikutnya</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Disclaimer: 3 dari 4 komik diatas hanya portal yang menuju platform membaca <b>KOMIKU.ID</b> Tolong dukung platform officialnya </p>
+    </div>
+
+    <script>
+        // Mock data for manga pages
+        const mangaData = {
+            'one-piece': {
+                title: 'One Piece',
+                chapters: {
+                    1: [
+                        'img c 1/spesial chapter 1.jpg',
+                        'img c 1/spesial chapter 2.jpg',
+                        'img c 1/spesial chapter 3.jpg',
+                        'img c 1/spesial chapter 4.jpg',
+                        'img c 1/spesial chapter 5.jpg',
+                        'img c 1/spesial chapter 6.jpg',
+                        'img c 1/spesial chapter 7.jpg',
+                        'img c 1/spesial chapter 8.jpg',
+                        'img c 1/spesial chapter 9.jpg',
+                        'img c 1/spesial chapter 10.jpg',
+                        'img c 1/spesial chapter 11.jpg',
+                        'img c 1/spesial chapter 12.jpg',
+                        'img c 1/spesial chapter 13.jpg',
+                        'img c 1/spesial chapter 14.jpg',
+                        'img c 1/spesial chapter 15.jpg',
+                        'img c 1/spesial chapter 16.jpg',
+                        'img c 1/spesial chapter 17.jpg',
+                        'img c 1/spesial chapter 18.jpg',
+                        'img c 1/spesial chapter 19.jpg',
+                        'img c 1/spesial chapter 20.jpg',
+                        'img c 1/spesial chapter 21.jpg',
+                        'img c 1/spesial chapter 22.jpg',
+                        'img c 1/spesial chapter 23.jpg',
+                        'img c 1/spesial chapter 24.jpg',
+                        'img c 1/spesial chapter 25.jpg',
+                        'img c 1/spesial chapter 26.jpg',
+                        'img c 1/spesial chapter 27.jpg',
+                        'img c 1/spesial chapter 28.jpg',
+                        'img c 1/spesial chapter 29.jpg',
+                        'img c 1/spesial chapter 30.jpg',
+                        'img c 1/spesial chapter 31.jpg',                          
+                    ],
+                    2: [
+                        'img c 2/airaxevil eye 1.jpg',
+                        'img c 2/airaxevil eye 2.jpg',
+                        'img c 2/airaxevil eye 3.jpg',
+                        'img c 2/airaxevil eye 4.jpg',
+                        'img c 2/airaxevil eye 5.jpg',
+                        'img c 2/airaxevil eye 6.jpg',
+                    ],
+                    3: [
+                        'img 2 c 1/seiko 1.jpg',
+                        'img 2 c 1/seiko 2.jpg',
+                        'img 2 c 1/seiko 3.jpg',
+                        'img 2 c 1/seiko 4.jpg',
+                    ],
+                    4: [
+                        'img 2 c 2/vamola 1.jpg',
+                        'img 2 c 2/vamola 2.jpg',
+                    ],
+                    5: [
+                        'img 3 c 1/aira 1.jpg',
+                        'img 3 c 1/aira 2.jpg',       
+                    ],
+                    6: [
+                        'img c 3/momo x okarun 1.jpg',
+                        'img c 3/momo x okarun 2.jpg',
+                        'img c 3/momo x okarun 3.jpg',
+                        'img c 3/momo x okarun 4.jpg',
+                        'img c 3/momo x okarun 5.jpg',
+                    ],
+                    7: [
+                        'img 4 c 1/momo 1.jpg',
+                        'img 4 c 1/momo 2.jpg',
+                    ],
+                    8: [
+                        'img 4 c 2/turbo 1.jpg',
+                        'img 4 c 2/turbo 2.jpg',
+                    ]
+                }
+            },
+        };
+
+        // Current reading state
+        let currentState = {
+            mangaId: null,
+            chapter: 1,
+            page: 0,
+            totalPages: 0
+        };
+
+        // DOM elements
+        const readerModal = document.getElementById('readerModal');
+        const readerTitle = document.getElementById('readerTitle');
+        const readerContent = document.getElementById('readerContent');
+        const closeReader = document.getElementById('closeReader');
+        const prevPageBtn = document.getElementById('prevPage');
+        const nextPageBtn = document.getElementById('nextPage');
+        const chapterSelector = document.getElementById('chapterSelector');
+        const readButtons = document.querySelectorAll('.read-btn');
+        const mangaCards = document.querySelectorAll('.manga-card');
+
+        // Open reader with manga data
+        function openReader(mangaId, chapter = 1) {
+            const manga = mangaData[mangaId];
+            if (!manga) return;
+
+            currentState = {
+                mangaId,
+                chapter,
+                page: 0,
+                totalPages: manga.chapters[chapter]?.length || 0
+            };
+
+            // Update UI
+            readerTitle.textContent = `${manga.title} - Chapter ${chapter}`;
+            readerContent.innerHTML = '';
+            
+            // Load pages
+            if (currentState.totalPages > 0) {
+                manga.chapters[chapter].forEach((pageUrl, index) => {
+                    const page = document.createElement('img');
+                    page.src = pageUrl;
+                    page.alt = `${manga.title} Chapter ${chapter} Page ${index + 1}`;
+                    page.className = 'manga-page';
+                    page.style.display = index === 0 ? 'block' : 'none';
+                    readerContent.appendChild(page);
+                });
+            } else {
+                const noPage = document.createElement('p');
+                noPage.textContent = 'No pages available for this chapter.';
+                readerContent.appendChild(noPage);
+            }
+
+            // Update chapter selector
+            updateChapterSelector(mangaId, chapter);
+            
+            // Update navigation buttons
+            updateNavButtons();
+            
+            // Show modal
+            readerModal.style.display = 'flex';
+        }
+
+        // Update chapter selector dropdown
+        function updateChapterSelector(mangaId, currentChapter) {
+            chapterSelector.innerHTML = '';
+            const chapters = Object.keys(mangaData[mangaId].chapters).sort((a, b) => a - b);
+            
+            chapters.forEach(ch => {
+                const option = document.createElement('option');
+                option.value = ch;
+                option.textContent = `Chapter ${ch}`;
+                if (Number(ch) === Number(currentChapter)) {
+                    option.selected = true;
+                }
+                chapterSelector.appendChild(option);
+            });
+        }
+
+        // Update navigation buttons state
+        function updateNavButtons() {
+            prevPageBtn.disabled = currentState.page <= 0;
+            nextPageBtn.disabled = currentState.page >= currentState.totalPages - 1;
+        }
+
+        // Go to specific page
+        function goToPage(pageIndex) {
+            if (pageIndex < 0 || pageIndex >= currentState.totalPages) return;
+            
+            // Hide all pages
+            const pages = document.querySelectorAll('.manga-page');
+            pages.forEach(page => {
+                page.style.display = 'none';
+            });
+            
+            // Show selected page
+            if (pages[pageIndex]) {
+                pages[pageIndex].style.display = 'block';
+            }
+            
+            currentState.page = pageIndex;
+            updateNavButtons();
+            
+            // Scroll to top of reader content
+            readerContent.scrollTo(0, 0);
+        }
+
+        // Chapter selector change handler
+        chapterSelector.addEventListener('change', function() {
+            const chapter = this.value;
+            openReader(currentState.mangaId, chapter);
+        });
+
+        // Previous page button
+        prevPageBtn.addEventListener('click', function() {
+            if (currentState.page > 0) {
+                goToPage(currentState.page - 1);
+            }
+        });
+
+        // Next page button
+        nextPageBtn.addEventListener('click', function() {
+            if (currentState.page < currentState.totalPages - 1) {
+                goToPage(currentState.page + 1);
+            }
+        });
+
+        // Close reader
+        closeReader.addEventListener('click', function() {
+            readerModal.style.display = 'none';
+        });
+
+        // Click outside content to close modal
+        readerModal.addEventListener('click', function(e) {
+            if (e.target === readerModal) {
+                readerModal.style.display = 'none';
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (readerModal.style.display !== 'flex') return;
+            
+            if (e.key === 'ArrowLeft' && currentState.page > 0) {
+                goToPage(currentState.page - 1);
+            } else if (e.key === 'ArrowRight' && currentState.page < currentState.totalPages - 1) {
+                goToPage(currentState.page + 1);
+            } else if (e.key === 'Escape') {
+                readerModal.style.display = 'none';
+            }
+        });
+
+        // Add click events to manga cards and read buttons
+        mangaCards.forEach((card, index) => {
+            const mangaId = card.dataset.mangaId;
+            
+            card.addEventListener('click', function(e) {
+                // Only open reader if the click wasn't on the read button
+                if (!e.target.classList.contains('read-btn')) {
+                    openReader(mangaId);
+                }
+            });
+            
+            readButtons[index].addEventListener('click', function() {
+                openReader(mangaId);
+            });
+        });
+    </script>
+</body>
+</html>
+

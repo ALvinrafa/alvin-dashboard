@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Drawing App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+        }
+        
+        .toolbar {
+            width: 250px;
+            background-color: #34495e;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .tool-section {
+            background-color: #2c3e50;
+            padding: 1rem;
+            border-radius: 8px;
+            color: white;
+        }
+        
+        .tool-section h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            border-bottom: 1px solid #7f8c8d;
+            padding-bottom: 0.5rem;
+        }
+        
+        .tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .tool-btn {
+            background-color: #3498db;
+            border: none;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 40px;
+        }
+        
+        .tool-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .tool-btn.active {
+            background-color: #16a085;
+            box-shadow: 0 0 0 2px white;
+        }
+        
+        .color-picker {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        input[type="color"] {
+            width: 100%;
+            height: 40px;
+            cursor: pointer;
+            border: 2px solid #7f8c8d;
+            border-radius: 4px;
+        }
+        
+        .brush-size {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .brush-size input {
+            width: 100%;
+            cursor: pointer;
+        }
+        
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            padding: 0.75rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        
+        .save-btn {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .save-btn:hover {
+            background-color: #2ecc71;
+        }
+        
+        .clear-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .clear-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        canvas {
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            cursor: crosshair;
+        }
+        
+        .download-link {
+            display: none;
+        }
+        
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .toolbar {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            
+            .tool-section {
+                flex: 1;
+                min-width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Canvas Drawing App</h1>
+    </header>
+    
+    <div class="container">
+        <div class="toolbar">
+            <div class="tool-section">
+                <h3>Alat</h3>
+                <div class="tools">
+                    <button class="tool-btn active" data-tool="brush">Kuas</button>
+                    <button class="tool-btn" data-tool="line">Garis</button>
+                    <button class="tool-btn" data-tool="rectangle">Segiempat</button>
+                    <button class="tool-btn" data-tool="circle">Lingkaran</button>
+                    <button class="tool-btn" data-tool="triangle">Segitiga</button>
+                    <button class="tool-btn" data-tool="star">Bintang</button>
+                </div>
+            </div>
+            
+            <div class="tool-section color-picker">
+                <h3>Warna</h3>
+                <input type="color" id="colorPicker" value="#000000">
+            </div>
+            
+            <div class="tool-section brush-size">
+                <h3>Ukuran kuas</h3>
+                <input type="range" id="brushSize" min="1" max="50" value="5">
+                <span id="brushSizeValue">5 px</span>
+            </div>
+            
+            <div class="tool-section actions">
+                <h3>AKSI</h3>
+                <button class="action-btn save-btn" id="saveBtn">Simpan gambar</button>
+                <button class="action-btn clear-btn" id="clearBtn">hapus gambar</button>
+                <a id="downloadLink" class="download-link" download="drawing.png"></a>
+            </div>
+        </div>
+        
+        <div class="canvas-container">
+            <canvas id="drawingCanvas" width="800" height="600"></canvas>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2025 Canvas Drawing App</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('drawingCanvas');
+            const ctx = canvas.getContext('2d');
+            const colorPicker = document.getElementById('colorPicker');
+            const brushSize = document.getElementById('brushSize');
+            const brushSizeValue = document.getElementById('brushSizeValue');
+            const saveBtn = document.getElementById('saveBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const downloadLink = document.getElementById('downloadLink');
+            const toolButtons = document.querySelectorAll('.tool-btn');
+            
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
+            let currentTool = 'brush';
+            let startX, startY;
+            let snapshot = null;
+            
+            // Resize canvas to fit container while maintaining aspect ratio
+            function resizeCanvas() {
+                const container = document.querySelector('.canvas-container');
+                const containerWidth = container.offsetWidth;
+                const containerHeight = container.offsetHeight;
+                
+                const canvasRatio = canvas.width / canvas.height;
+                const containerRatio = containerWidth / containerHeight;
+                
+                if (containerRatio > canvasRatio) {
+                    canvas.style.width = (containerHeight * canvasRatio) + 'px';
+                    canvas.style.height = containerHeight + 'px';
+                } else {
+                    canvas.style.width = containerWidth + 'px';
+                    canvas.style.height = (containerWidth / canvasRatio) + 'px';
+                }
+            }
+            
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            
+            // Set up canvas with white background
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = colorPicker.value;
+            ctx.lineWidth = brushSize.value;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            // Update brush size display
+            brushSizeValue.textContent = brushSize.value + ' px';
+            
+            // Event listeners
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            colorPicker.addEventListener('input', updateColor);
+            brushSize.addEventListener('input', updateBrushSize);
+            saveBtn.addEventListener('click', saveDrawing);
+            clearBtn.addEventListener('click', clearCanvas);
+            
+            toolButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    toolButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    currentTool = this.dataset.tool;
+                });
+            });
+            
+            // Fungsi untuk konversi posisi mouse ke koordinat asli canvas
+            function getCanvasCoords(e) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                return {
+                    x: (e.clientX - rect.left) * scaleX,
+                    y: (e.clientY - rect.top) * scaleY
+                };
+            }
+
+            function startDrawing(e) {
+                isDrawing = true;
+                const pos = getCanvasCoords(e);
+                [lastX, lastY] = [pos.x, pos.y];
+                [startX, startY] = [pos.x, pos.y];
+                // Simpan snapshot canvas sebelum mulai menggambar shape
+                if (currentTool !== 'brush') {
+                    snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                }
+                if (currentTool === 'brush') {
+                    ctx.beginPath();
+                    ctx.moveTo(lastX, lastY);
+                }
+            }
+
+            function draw(e) {
+                if (!isDrawing) return;
+                const pos = getCanvasCoords(e);
+                ctx.strokeStyle = colorPicker.value;
+                ctx.lineWidth = brushSize.value;
+                ctx.fillStyle = colorPicker.value;
+                switch (currentTool) {
+                    case 'brush':
+                        ctx.lineTo(pos.x, pos.y);
+                        ctx.stroke();
+                        break;
+                    case 'line':
+                        ctx.putImageData(snapshot, 0, 0);
+                        ctx.beginPath();
+                        ctx.moveTo(startX, startY);
+                        ctx.lineTo(pos.x, pos.y);
+                        ctx.stroke();
+                        break;
+                    case 'rectangle':
+                        ctx.putImageData(snapshot, 0, 0);
+                        ctx.beginPath();
+                        ctx.rect(
+                            startX,
+                            startY,
+                            pos.x - startX,
+                            pos.y - startY
+                        );
+                        ctx.stroke();
+                        break;
+                    case 'circle':
+                        ctx.putImageData(snapshot, 0, 0);
+                        const radius = Math.sqrt(
+                            Math.pow(pos.x - startX, 2) +
+                            Math.pow(pos.y - startY, 2)
+                        );
+                        ctx.beginPath();
+                        ctx.arc(startX, startY, radius, 0, Math.PI * 2);
+                        ctx.stroke();
+                        break;
+                    case 'triangle':
+                        ctx.putImageData(snapshot, 0, 0);
+                        ctx.beginPath();
+                        ctx.moveTo(startX + (pos.x - startX) / 2, startY);
+                        ctx.lineTo(pos.x, pos.y);
+                        ctx.lineTo(startX, pos.y);
+                        ctx.closePath();
+                        ctx.stroke();
+                        break;
+                    case 'star':
+                        ctx.putImageData(snapshot, 0, 0);
+                        drawStar(
+                            ctx,
+                            startX + (pos.x - startX) / 2,
+                            startY + (pos.y - startY) / 2,
+                            5,
+                            Math.abs(pos.x - startX) / 2,
+                            Math.abs(pos.y - startY) / 4,
+                            0
+                        );
+                        ctx.stroke();
+                        break;
+                }
+            }
+
+            function stopDrawing(e) {
+                if (!isDrawing) return;
+                isDrawing = false;
+                const pos = getCanvasCoords(e);
+                ctx.beginPath();
+                switch (currentTool) {
+                    case 'line':
+                        ctx.moveTo(startX, startY);
+                        ctx.lineTo(pos.x, pos.y);
+                        ctx.stroke();
+                        break;
+                    case 'rectangle':
+                        ctx.beginPath();
+                        ctx.rect(
+                            startX,
+                            startY,
+                            pos.x - startX,
+                            pos.y - startY
+                        );
+                        ctx.stroke();
+                        break;
+                    case 'circle':
+                        const radius = Math.sqrt(
+                            Math.pow(pos.x - startX, 2) +
+                            Math.pow(pos.y - startY, 2)
+                        );
+                        ctx.beginPath();
+                        ctx.arc(startX, startY, radius, 0, Math.PI * 2);
+                        ctx.stroke();
+                        break;
+                    case 'triangle':
+                        ctx.beginPath();
+                        ctx.moveTo(startX + (pos.x - startX) / 2, startY);
+                        ctx.lineTo(pos.x, pos.y);
+                        ctx.lineTo(startX, pos.y);
+                        ctx.closePath();
+                        ctx.stroke();
+                        break;
+                    case 'star':
+                        drawStar(
+                            ctx,
+                            startX + (pos.x - startX) / 2,
+                            startY + (pos.y - startY) / 2,
+                            5,
+                            Math.abs(pos.x - startX) / 2,
+                            Math.abs(pos.y - startY) / 4,
+                            0
+                        );
+                        ctx.stroke();
+                        break;
+                }
+            }
+            
+            // Helper function to draw a star
+            function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius, rotation) {
+                let rot = Math.PI / 2 * 3;
+                let x = cx;
+                let y = cy;
+                let step = Math.PI / spikes;
+                
+                ctx.beginPath();
+                ctx.moveTo(cx, cy - outerRadius);
+                
+                for (let i = 0; i < spikes; i++) {
+                    x = cx + Math.cos(rot) * outerRadius;
+                    y = cy + Math.sin(rot) * outerRadius;
+                    ctx.lineTo(x, y);
+                    rot += step;
+                    
+                    x = cx + Math.cos(rot) * innerRadius;
+                    y = cy + Math.sin(rot) * innerRadius;
+                    ctx.lineTo(x, y);
+                    rot += step;
+                }
+                
+                ctx.lineTo(cx, cy - outerRadius);
+                ctx.closePath();
+            }
+            
+            function updateColor() {
+                ctx.strokeStyle = colorPicker.value;
+                ctx.fillStyle = colorPicker.value;
+            }
+            
+            function updateBrushSize() {
+                ctx.lineWidth = brushSize.value;
+                brushSizeValue.textContent = brushSize.value + ' px';
+            }
+            
+            function saveDrawing() {
+                // Create a temporary canvas with white background
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = canvas.width;
+                tempCanvas.height = canvas.height;
+                
+                // Fill with white background
+                tempCtx.fillStyle = 'white';
+                tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                
+                // Draw the existing content
+                tempCtx.drawImage(canvas, 0, 0);
+                
+                // Create download link
+                const dataURL = tempCanvas.toDataURL('image/png');
+                downloadLink.href = dataURL;
+                downloadLink.click();
+            }
+            
+            function clearCanvas() {
+                if (confirm('Are you sure you want to clear the canvas?')) {
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.strokeStyle = colorPicker.value;
+                    ctx.fillStyle = colorPicker.value;
+                    ctx.lineWidth = brushSize.value;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #0f0f1a;
+            overflow: hidden;
+        }
+
+        .calculator {
+            position: relative;
+            width: 320px;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+            border: 2px solid #00ffff;
+            background-color: rgba(15, 15, 26, 0.9);
+            z-index: 10;
+        }
+
+        .calculator::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #00ff00, #ffff00);
+            background-size: 400%;
+            opacity: 0.15;
+            z-index: -1;
+            animation: animate-border 10s linear infinite;
+        }
+
+        @keyframes animate-border {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .display {
+            width: 100%;
+            height: 80px;
+            margin-bottom: 20px;
+            padding: 10px;
+            font-size: 2rem;
+            text-align: right;
+            color: #00ffff;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ffff;
+            border-radius: 10px;
+            box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.3);
+            overflow: hidden;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        button {
+            height: 60px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            color: white;
+            background-color: rgba(30, 30, 50, 0.8);
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s;
+        }
+
+        button:hover::before {
+            transform: translateX(100%);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .operator {
+            color: #ff00ff;
+            background-color: rgba(50, 30, 50, 0.8);
+            font-weight: bold;
+        }
+
+        .equals {
+            color: #00ff00;
+            background-color: rgba(30, 50, 30, 0.8);
+            font-weight: bold;
+        }
+
+        .clear, .delete {
+            color: #ff5555;
+            background-color: rgba(50, 30, 30, 0.8);
+        }
+
+        .glow-effect {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .glow-dot {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+            filter: blur(2px);
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(100vw, 100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .calculator {
+                width: 95%;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="glow-effect" id="glowEffect"></div>
+        <div class="display" id="display">0</div>
+        <div class="buttons">
+            <button class="clear" onclick="clearDisplay()">AC</button>
+            <button class="delete" onclick="deleteLastChar()">DEL</button>
+            <button class="operator" onclick="appendToDisplay('%')">%</button>
+            <button class="operator" onclick="appendToDisplay('/')">/</button>
+            
+            <button onclick="appendToDisplay('7')">7</button>
+            <button onclick="appendToDisplay('8')">8</button>
+            <button onclick="appendToDisplay('9')">9</button>
+            <button class="operator" onclick="appendToDisplay('*')">×</button>
+            
+            <button onclick="appendToDisplay('4')">4</button>
+            <button onclick="appendToDisplay('5')">5</button>
+            <button onclick="appendToDisplay('6')">6</button>
+            <button class="operator" onclick="appendToDisplay('-')">-</button>
+            
+            <button onclick="appendToDisplay('1')">1</button>
+            <button onclick="appendToDisplay('2')">2</button>
+            <button onclick="appendToDisplay('3')">3</button>
+            <button class="operator" onclick="appendToDisplay('+')">+</button>
+            
+            <button onclick="appendToDisplay('0')">0</button>
+            <button onclick="appendToDisplay('.')">.</button>
+            <button class="equals" onclick="calculate()" colspan="2">=</button>
+        </div>
+    </div>
+
+    <script>
+        // Calculator functions
+        let currentDisplay = '0';
+        const display = document.getElementById('display');
+        
+        function updateDisplay() {
+            display.textContent = currentDisplay;
+        }
+
+        function appendToDisplay(value) {
+            if (currentDisplay === '0' && value !== '.') {
+                currentDisplay = value;
+            } else {
+                currentDisplay += value;
+            }
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            currentDisplay = '0';
+            updateDisplay();
+        }
+
+        function deleteLastChar() {
+            if (currentDisplay.length === 1) {
+                currentDisplay = '0';
+            } else {
+                currentDisplay = currentDisplay.slice(0, -1);
+            }
+            updateDisplay();
+        }
+
+        function calculate() {
+            try {
+                let result = eval(currentDisplay);
+                if (result.toString().length > 10) {
+                    result = result.toFixed(8);
+                }
+                currentDisplay = result.toString();
+            } catch (error) {
+                currentDisplay = 'Error';
+            }
+            updateDisplay();
+        }
+
+        // Glow effect dots
+        function createGlowDots() {
+            const glowEffect = document.getElementById('glowEffect');
+            const colors = ['#00ffff', '#ff00ff', '#00ff00', '#ffff00'];
+            
+            setInterval(() => {
+                const dot = document.createElement('div');
+                dot.className = 'glow-dot';
+                
+                const size = Math.random() * 6 + 4;
+                dot.style.width = `${size}px`;
+                dot.style.height = `${size}px`;
+                
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                dot.style.background = color;
+                dot.style.boxShadow = `0 0 ${size}px ${color}`;
+                
+                dot.style.left = `${Math.random() * 100}%`;
+                dot.style.top = `${Math.random() * 100}%`;
+                
+                dot.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                
+                glowEffect.appendChild(dot);
+                
+                // Remove dot after animation completes
+                setTimeout(() => {
+                    dot.remove();
+                }, 15000);
+                
+            }, 300);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createGlowDots();
+        });
+    </script>
+</body>
+</html>

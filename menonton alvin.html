@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menonton anime</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0f0f1a;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #ff6b6b;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            color: #a0a0c0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .platforms-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 50px auto;
+        }
+
+        .platform-card {
+            background: linear-gradient(135deg, #1e1e3a 0%, #2a2a4a 100%);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .platform-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .platform-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #ff6b6b, #8e44ad);
+        }
+
+        .platform-image {
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .platform-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .platform-card:hover .platform-image img {
+            transform: scale(1.05);
+        }
+
+        .platform-info {
+            padding: 20px;
+        }
+
+        .platform-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #ffd166;
+        }
+
+        .platform-info p {
+            color: #c0c0e0;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .platform-button {
+            display: inline-block;
+            padding: 12px 25px;
+            background: linear-gradient(90deg, #ff6b6b, #8e44ad);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s ease;
+            width: 100%;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .platform-button:hover {
+            background: linear-gradient(90deg, #8e44ad, #ff6b6b);
+            box-shadow: 0 0 15px rgba(142, 68, 173, 0.5);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #606080;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .platforms-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Anime Streaming Platforms</h1>
+        <p>Pilih anime favorit yang ingin di tonton</p>
+    </div>
+
+    <div class="platforms-container">
+        <!-- dandadan 1 Card -->
+        <div class="platform-card">
+            <div class="platform-image">
+                <img src="posterdandadan s1.jpg" alt="Popular shonen anime characters from various series in dynamic action poses" />
+            </div>
+            <div class="platform-info">
+                <h3>DanDaDan season 1</h3>
+                <p style="text-align: center;">Dandadan bercerita tentang dua remaja Momo dan Okarun yang tanpa sengaja terlibat dalam konflik antara makhluk gaib dan alien, lalu mendapat kekuatan supranatural dan harus bertarung bersama melawan ancaman aneh.</p>
+                <a href="https://youtube.com/playlist?list=PLPanbgyToztbzIUgfv2T07P0LUrQ7fhw0&si=F1Vrdmhe0thdhuFZ" class="platform-button" target="_blank">Tonton</a>
+            </div>
+        </div>
+
+        <!-- dandadan 2 Card -->
+        <div class="platform-card">
+            <div class="platform-image">
+                <img src="posterdandadan s2.jpg" alt="Classic anime characters posing together in a colorful group shot" />
+            </div>
+            <div class="platform-info">
+                <h3>DanDaDan season 2</h3>
+                <p style="text-align: center;">Momo dan Okarun menghadapi roh kutukan kuat bernama Evil Eye yang mengancam teman mereka, Jiji. Dengan kekuatan supranatural mereka yang semakin berkembang, mereka harus melindungi satu sama lain sambil mengungkap rahasia gelap dibalik rumah terkutuk.</p>
+                <a href="https://154.26.137.28/dandadan-2nd-season-episode-1/" class="platform-button" target="_blank">Tonton</a>
+            </div>
+        </div>
+
+        <!-- anime rusa Card -->
+        <div class="platform-card">
+            <div class="platform-image">
+                <img src="postershikanoko.jpg" alt="Original Netflix anime productions with dark and mature themes" />
+            </div>
+            <div class="platform-info">
+                <h3>Shikanoko</h3>
+                <p style="text-align: center;">bercerita tentang Torako, siswi SMA yang berusaha menyembunyikan masa lalunya sebagai preman, tapi hidupnya jadi kacau setelah bertemu Nokotan—gadis rusa aneh yang bisa mencium rahasia orang. Komedi absurd pun dimulai saat mereka membentuk Klub Rusa.
+</p>
+                <a href="https://otakudesu.best/anime/shikanoko-nokotan-sub-indo/" class="platform-button" target="_blank">Tonton</a>
+            </div>
+        </div>
+
+        <!-- kaito Card -->
+        <div class="platform-card">
+            <div class="platform-image">
+                <img src="posteronepiece.jpg" alt="Lesser known but critically acclaimed anime titles with artistic styles" />
+            </div>
+            <div class="platform-info">
+                <h3>One piece</h3>
+                <p style="text-align: center;">Sebelum ajalnya, "Sang Raja Bajak Laut Legendaris", Gold Roger, mengumumkan bahwa dia telah menyembunyikan harta karunnya di sebuah tempat di dunia ini. Kata-katanya tersebut telah membawa dunia menuju zaman bajak laut baru! Dan kini, seorang pemuda bernama Luffy, telah memulai perjalanannya untuk menemukan harta karun Tersebut dan menjadi raja bajak laut! </p>
+                <a href="https://samehadaku.ac/category/one-piece/" class="platform-button" target="_blank">Tonton</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Disclaimer: ini hanya portal yang menuju platform streaming. Tolong dukung platform official streaming</p>
+    </div>
+    <script>
+        // Animasi tombol
+        document.querySelectorAll('.platform-button').forEach(button => {
+            button.addEventListener('mousedown', function() {
+                this.style.transform = 'scale(0.95)';
+            });
+            
+            button.addEventListener('mouseup', function() {
+                this.style.transform = 'scale(1)';
+            });
+            
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+
+        // Scrool yang smoth
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+

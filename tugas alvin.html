@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Tugas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --danger: #f72585;
+            --success: #4cc9f0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+        
+        .task-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .urgent {
+            border-left-color: var(--danger);
+        }
+        
+        .completed {
+            border-left-color: var(--success);
+            opacity: 0.7;
+        }
+        
+        .soon {
+            border-left-color: var(--accent);
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background-color: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary);
+            transition: width 0.5s ease;
+        }
+        
+        .category-chip {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            background-color: #e2e8f0;
+        }
+        
+        .work { background-color: #fef3c7; color: #92400e; }
+        .study { background-color: #dbeafe; color: #1e40af; }
+        .personal { background-color: #f0fdf4; color: #166534; }
+        .other { background-color: #f3f4f6; color: #4b5563; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fadeIn {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="mb-8 text-center">
+            <div class="flex items-center justify-center mb-4">
+                <img src="https://placehold.co/100x100/4361ee/FFFFFF?text=TT" alt="TaskTracker Logo - Minimal circular logo with TT initials" class="mr-4">
+                <h1 class="text-4xl font-bold text-gray-800">TrackerTugas</h1>
+            </div>
+            <p class="text-lg text-gray-600">Kelola dan pantau semua tugas Anda di satu tempat</p>
+        </header>
+        
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-sm text-gray-500">Total Tugas</p>
+                        <h3 class="text-2xl font-bold" id="total-tasks">0</h3>
+                    </div>
+                    <div class="bg-blue-100 rounded-full p-3">
+                        <i class="fas fa-tasks text-blue-500"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-sm text-gray-500">Selesai</p>
+                        <h3 class="text-2xl font-bold" id="completed-tasks">0</h3>
+                    </div>
+                    <div class="bg-green-100 rounded-full p-3">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-sm text-gray-500">Deadline Dekat</p>
+                        <h3 class="text-2xl font-bold" id="due-soon-tasks">0</h3>
+                    </div>
+                    <div class="bg-yellow-100 rounded-full p-3">
+                        <i class="fas fa-clock text-yellow-500"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-sm text-gray-500">Terlambat</p>
+                        <h3 class="text-2xl font-bold" id="overdue-tasks">0</h3>
+                    </div>
+                    <div class="bg-red-100 rounded-full p-3">
+                        <i class="fas fa-exclamation-triangle text-red-500"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add Task Form -->
+        <div class="bg-white rounded-lg shadow p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">Tambah Tugas Baru</h2>
+            <form id="add-task-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label for="task-title" class="block text-sm font-medium text-gray-700 mb-1">Judul Tugas</label>
+                    <input type="text" id="task-title" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                
+                <div>
+                    <label for="task-category" class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                    <select id="task-category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="work">Pekerjaan</option>
+                        <option value="study">Belajar</option>
+                        <option value="personal">Personal</option>
+                        <option value="other">Kuliah</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="task-due" class="block text-sm font-medium text-gray-700 mb-1">Deadline</label>
+                    <input type="datetime-local" id="task-due" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition duration-300">
+                        Tambah Tugas
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Filters -->
+        <div class="flex flex-wrap items-center justify-between mb-6">
+            <div class="flex space-x-2 mb-2 md:mb-0">
+                <button class="filter-btn px-4 py-2 rounded-md border border-gray-300 bg-white hover:bg-gray-50 active:bg-gray-100 transition" data-filter="all">Semua</button>
+                <button class="filter-btn px-4 py-2 rounded-md border border-gray-300 bg-white hover:bg-gray-50 active:bg-gray-100 transition" data-filter="active">Aktif</button>
+                <button class="filter-btn px-4 py-2 rounded-md border border-gray-300 bg-white hover:bg-gray-50 active:bg-gray-100 transition" data-filter="completed">Selesai</button>
+                <button class="filter-btn px-4 py-2 rounded-md border border-gray-300 bg-white hover:bg-gray-50 active:bg-gray-100 transition" data-filter="overdue">Terlambat</button>
+            </div>
+            
+            <div class="relative">
+                <select id="sort-by" class="appearance-none pl-4 pr-10 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="due-asc">Deadline - Awal ke Akhir</option>
+                    <option value="due-desc">Deadline - Akhir ke Awal</option>
+                    <option value="title-asc">Judul - A-Z</option>
+                    <option value="title-desc">Judul - Z-A</option>
+                    <option value="created-desc">Terbaru</option>
+                    <option value="created-asc">Terdahulu</option>
+                </select>
+                <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                    <i class="fas fa-chevron-down text-gray-500"></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="mb-6">
+            <div class="flex justify-between mb-2">
+                <span class="text-sm font-medium text-gray-700">Progress Penyelesaian</span>
+                <span class="text-sm font-medium text-gray-700" id="progress-percentage">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 0%"></div>
+            </div>
+        </div>
+        
+        <!-- Task List -->
+        <div id="task-list" class="grid grid-cols-1 gap-4">
+            <!-- Tasks will be added here dynamically -->
+            <div class="text-center py-10 text-gray-500" id="empty-state">
+                <i class="fas fa-tasks text-4xl mb-2"></i>
+                <p>Tidak ada tugas yang dibuat</p>
+                <p class="text-sm">Tambahkan tugas pertama Anda menggunakan formulir di atas</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Task Modal -->
+    <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold">Edit Tugas</h3>
+                <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="edit-task-form">
+                <input type="hidden" id="edit-task-id">
+                
+                <div class="mb-4">
+                    <label for="edit-task-title" class="block text-sm font-medium text-gray-700 mb-1">Judul Tugas</label>
+                    <input type="text" id="edit-task-title" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="edit-task-category" class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                    <select id="edit-task-category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="work">Pekerjaan</option>
+                        <option value="study">Belajar</option>
+                        <option value="personal">Personal</option>
+                        <option value="other">Lainnya</option>
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="edit-task-due" class="block text-sm font-medium text-gray-700 mb-1">Deadline</label>
+                    <input type="datetime-local" id="edit-task-due" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button type="button" id="cancel-edit" class="px-4 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50 transition">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                        Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // State management
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        let currentFilter = 'all';
+        let currentSort = 'due-asc';
+        
+        // DOM Elements
+        const taskList = document.getElementById('task-list');
+        const addTaskForm = document.getElementById('add-task-form');
+        const editTaskForm = document.getElementById('edit-task-form');
+        const editModal = document.getElementById('edit-modal');
+        const emptyState = document.getElementById('empty-state');
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTasks();
+            updateStats();
+            
+            // Set default due date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const formattedDate = tomorrow.toISOString().slice(0, 16);
+            document.getElementById('task-due').value = formattedDate;
+            
+            // Event listeners
+            addTaskForm.addEventListener('submit', handleAddTask);
+            editTaskForm.addEventListener('submit', handleEditTask);
+            document.getElementById('close-modal').addEventListener('click', closeModal);
+            document.getElementById('cancel-edit').addEventListener('click', closeModal);
+            
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentFilter = btn.dataset.filter;
+                    document.querySelectorAll('.filter-btn').forEach(b => {
+                        b.classList.remove('bg-blue-100', 'border-blue-500');
+                        if (b.dataset.filter === currentFilter) {
+                            b.classList.add('bg-blue-100', 'border-blue-500');
+                        }
+                    });
+                    renderTasks();
+                });
+            });
+            
+            document.getElementById('sort-by').addEventListener('change', (e) => {
+                currentSort = e.target.value;
+                renderTasks();
+            });
+            
+            // Highlight 'all' filter by default
+            document.querySelector('.filter-btn[data-filter="all"]').classList.add('bg-blue-100', 'border-blue-500');
+        });
+        
+        // Functions
+        function handleAddTask(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('task-title').value.trim();
+            const category = document.getElementById('task-category').value;
+            const dueDate = document.getElementById('task-due').value;
+            
+            if (!title) return;
+            
+            const newTask = {
+                id: Date.now().toString(),
+                title,
+                category,
+                due: dueDate,
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
+            
+            tasks.push(newTask);
+            saveTasks();
+            renderTasks();
+            updateStats();
+            
+            // Reset form
+            addTaskForm.reset();
+            
+            // Reset due date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const formattedDate = tomorrow.toISOString().slice(0, 16);
+            document.getElementById('task-due').value = formattedDate;
+        }
+        
+        function renderTasks() {
+            let filteredTasks = [...tasks];
+            
+            // Apply filter
+            switch(currentFilter) {
+                case 'active':
+                    filteredTasks = filteredTasks.filter(task => !task.completed);
+                    break;
+                case 'completed':
+                    filteredTasks = filteredTasks.filter(task => task.completed);
+                    break;
+                case 'overdue':
+                    filteredTasks = filteredTasks.filter(task => 
+                        !task.completed && new Date(task.due) < new Date()
+                    );
+                    break;
+                // 'all' - no filter applied
+            }
+            
+            // Apply sorting
+            filteredTasks.sort((a, b) => {
+                switch(currentSort) {
+                    case 'due-desc':
+                        return new Date(b.due) - new Date(a.due);
+                    case 'title-asc':
+                        return a.title.localeCompare(b.title);
+                    case 'title-desc':
+                        return b.title.localeCompare(a.title);
+                    case 'created-desc':
+                        return new Date(b.createdAt) - new Date(a.createdAt);
+                    case 'created-asc':
+                        return new Date(a.createdAt) - new Date(b.createdAt);
+                    default: // 'due-asc'
+                        return new Date(a.due) - new Date(b.due);
+                }
+            });
+            
+            // Render tasks
+            if (filteredTasks.length === 0) {
+                emptyState.style.display = 'block';
+                taskList.innerHTML = '';
+                taskList.appendChild(emptyState);
+            } else {
+                emptyState.style.display = 'none';
+                
+                taskList.innerHTML = '';
+                
+                filteredTasks.forEach(task => {
+                    const taskElement = createTaskElement(task);
+                    taskList.appendChild(taskElement);
+                });
+            }
+            
+            updateProgressBar();
+        }
+        
+        function createTaskElement(task) {
+            const dueDate = new Date(task.due);
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            let statusClass = '';
+            let statusText = '';
+            
+            if (task.completed) {
+                statusClass = 'completed';
+                statusText = 'Selesai';
+            } else if (dueDate < now) {
+                statusClass = 'urgent';
+                statusText = 'Terlambat!';
+            } else if (dueDate < tomorrow) {
+                statusClass = 'soon';
+                statusText = 'Deadline Hari Ini';
+            }
+            
+            const taskElement = document.createElement('div');
+            taskElement.className = `task-card bg-white rounded-lg shadow p-4 cursor-pointer relative animate-fadeIn ${statusClass}`;
+            taskElement.dataset.id = task.id;
+            
+            // Task title and status
+            taskElement.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <h3 class="font-semibold text-lg">${task.title}</h3>
+                        ${statusText ? `<span class="text-xs font-medium px-2 py-0.5 rounded ${statusClass === 'urgent' ? 'bg-red-100 text-red-800' : statusClass === 'soon' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}">${statusText}</span>` : ''}
+                    </div>
+                    <div class="category-chip ${task.category} capitalize">
+                        ${task.category === 'work' ? 'Pekerjaan' : 
+                          task.category === 'study' ? 'Belajar' : 
+                          task.category === 'personal' ? 'Personal' : 'Lainnya'}
+                    </div>
+                </div>
+                
+                <div class="flex items-center text-sm text-gray-500 mb-3">
+                    <i class="fas fa-calendar-day mr-2"></i>
+                    <span>${formatDateTime(task.due)}</span>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button class="toggle-complete ${task.completed ? 'text-green-500' : 'text-gray-400'} hover:text-green-600 transition">
+                        <i class="fas fa-${task.completed ? 'check-square' : 'square'} fa-lg"></i>
+                        <span class="sr-only">${task.completed ? 'Tandai belum selesai' : 'Tandai selesai'}</span>
+                    </button>
+                    <button class="edit-task text-blue-500 hover:text-blue-700 transition">
+                        <i class="fas fa-edit fa-lg"></i>
+                        <span class="sr-only">Edit</span>
+                    </button>
+                    <button class="delete-task text-red-500 hover:text-red-700 transition">
+                        <i class="fas fa-trash fa-lg"></i>
+                        <span class="sr-only">Hapus</span>
+                    </button>
+                </div>
+            `;
+            
+            // Add event listeners to buttons
+            taskElement.querySelector('.toggle-complete').addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleComplete(task.id);
+            });
+            
+            taskElement.querySelector('.edit-task').addEventListener('click', (e) => {
+                e.stopPropagation();
+                openEditModal(task);
+            });
+            
+            taskElement.querySelector('.delete-task').addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteTask(task.id);
+            });
+            
+            // Clicking the task card toggles completion status
+            taskElement.addEventListener('click', () => {
+                toggleComplete(task.id);
+            });
+            
+            return taskElement;
+        }
+        
+        function formatDateTime(dateString) {
+            // Konversi ke zona waktu WIB (GMT+7)
+            const date = new Date(dateString);
+            const wibOffset = 7 * 60;
+            const utc = date.getTime() + (date.getTimezoneOffset() * 60000);
+            const wibDate = new Date(utc + (wibOffset * 60000));
+            // Format tanggal dan jam dalam bahasa Indonesia
+            const tanggal = wibDate.toLocaleDateString('id-ID', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            const jam = wibDate.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+            return `${tanggal}, ${jam} WIB`;
+        }
+        
+        function toggleComplete(taskId) {
+            const taskIndex = tasks.findIndex(task => task.id === taskId);
+            if (taskIndex !== -1) {
+                tasks[taskIndex].completed = !tasks[taskIndex].completed;
+                saveTasks();
+                renderTasks();
+                updateStats();
+            }
+        }
+        
+        function openEditModal(task) {
+            document.getElementById('edit-task-id').value = task.id;
+            document.getElementById('edit-task-title').value = task.title;
+            document.getElementById('edit-task-category').value = task.category;
+            
+            // Format the date for the datetime-local input
+            const dueDate = new Date(task.due);
+            const formattedDate = dueDate.toISOString().slice(0, 16);
+            document.getElementById('edit-task-due').value = formattedDate;
+            
+            editModal.classList.remove('hidden');
+        }
+        
+        function closeModal() {
+            editModal.classList.add('hidden');
+        }
+        
+        function handleEditTask(e) {
+            e.preventDefault();
+            
+            const taskId = document.getElementById('edit-task-id').value;
+            const title = document.getElementById('edit-task-title').value.trim();
+            const category = document.getElementById('edit-task-category').value;
+            const dueDate = document.getElementById('edit-task-due').value;
+            
+            const taskIndex = tasks.findIndex(task => task.id === taskId);
+            if (taskIndex !== -1) {
+                tasks[taskIndex].title = title;
+                tasks[taskIndex].category = category;
+                tasks[taskIndex].due = dueDate;
+                
+                saveTasks();
+                renderTasks();
+                updateStats();
+                closeModal();
+            }
+        }
+        
+        function deleteTask(taskId) {
+            if (confirm('Apakah Anda yakin ingin menghapus tugas ini?')) {
+                tasks = tasks.filter(task => task.id !== taskId);
+                saveTasks();
+                renderTasks();
+                updateStats();
+            }
+        }
+        
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+        
+        function updateStats() {
+            document.getElementById('total-tasks').textContent = tasks.length;
+            
+            const completedTasks = tasks.filter(task => task.completed).length;
+            document.getElementById('completed-tasks').textContent = completedTasks;
+            
+            const now = new Date();
+            const dueSoonTasks = tasks.filter(task => 
+                !task.completed && 
+                new Date(task.due) > now && 
+                new Date(task.due) < new Date(now.getTime() + 24 * 60 * 60 * 1000)
+            ).length;
+            document.getElementById('due-soon-tasks').textContent = dueSoonTasks;
+            
+            const overdueTasks = tasks.filter(task => 
+                !task.completed && 
+                new Date(task.due) < now
+            ).length;
+            document.getElementById('overdue-tasks').textContent = overdueTasks;
+            
+            updateProgressBar();
+        }
+        
+        function updateProgressBar() {
+            const totalTasks = tasks.length;
+            const completedTasks = tasks.filter(task => task.completed).length;
+            const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+            
+            document.getElementById('progress-percentage').textContent = `${percentage}%`;
+            document.querySelector('.progress-fill').style.width = `${percentage}%`;
+            
+            // Change color based on progress
+            if (percentage >= 80) {
+                document.querySelector('.progress-fill').style.backgroundColor = 'var(--success)';
+            } else if (percentage >= 50) {
+                document.querySelector('.progress-fill').style.backgroundColor = 'var(--accent)';
+            } else {
+                document.querySelector('.progress-fill').style.backgroundColor = 'var(--primary)';
+            }
+        }
+    </script>
+</body>
+</html>

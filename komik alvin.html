@@ -348,7 +348,7 @@
         // Mock data for manga pages
         const mangaData = {
             'one-piece': {
-                title: 'One Piece',
+                title: 'Dandadan',
                 chapters: {
                     1: [
                         'img c 1/spesial chapter 1.jpg',
@@ -424,7 +424,7 @@
             },
         };
 
-        // Current reading state
+        
         let currentState = {
             mangaId: null,
             chapter: 1,
@@ -432,7 +432,7 @@
             totalPages: 0
         };
 
-        // DOM elements
+       
         const readerModal = document.getElementById('readerModal');
         const readerTitle = document.getElementById('readerTitle');
         const readerContent = document.getElementById('readerContent');
@@ -443,7 +443,7 @@
         const readButtons = document.querySelectorAll('.read-btn');
         const mangaCards = document.querySelectorAll('.manga-card');
 
-        // Open reader with manga data
+        
         function openReader(mangaId, chapter = 1) {
             const manga = mangaData[mangaId];
             if (!manga) return;
@@ -455,11 +455,11 @@
                 totalPages: manga.chapters[chapter]?.length || 0
             };
 
-            // Update UI
+            
             readerTitle.textContent = `${manga.title} - Chapter ${chapter}`;
             readerContent.innerHTML = '';
             
-            // Load pages
+            
             if (currentState.totalPages > 0) {
                 manga.chapters[chapter].forEach((pageUrl, index) => {
                     const page = document.createElement('img');
@@ -475,17 +475,17 @@
                 readerContent.appendChild(noPage);
             }
 
-            // Update chapter selector
+           
             updateChapterSelector(mangaId, chapter);
             
-            // Update navigation buttons
+           
             updateNavButtons();
             
-            // Show modal
+           
             readerModal.style.display = 'flex';
         }
 
-        // Update chapter selector dropdown
+        
         function updateChapterSelector(mangaId, currentChapter) {
             chapterSelector.innerHTML = '';
             const chapters = Object.keys(mangaData[mangaId].chapters).sort((a, b) => a - b);
@@ -501,23 +501,22 @@
             });
         }
 
-        // Update navigation buttons state
+       
         function updateNavButtons() {
             prevPageBtn.disabled = currentState.page <= 0;
             nextPageBtn.disabled = currentState.page >= currentState.totalPages - 1;
         }
 
-        // Go to specific page
+        
         function goToPage(pageIndex) {
             if (pageIndex < 0 || pageIndex >= currentState.totalPages) return;
             
-            // Hide all pages
             const pages = document.querySelectorAll('.manga-page');
             pages.forEach(page => {
                 page.style.display = 'none';
             });
             
-            // Show selected page
+          
             if (pages[pageIndex]) {
                 pages[pageIndex].style.display = 'block';
             }
@@ -525,43 +524,43 @@
             currentState.page = pageIndex;
             updateNavButtons();
             
-            // Scroll to top of reader content
+        
             readerContent.scrollTo(0, 0);
         }
 
-        // Chapter selector change handler
+       
         chapterSelector.addEventListener('change', function() {
             const chapter = this.value;
             openReader(currentState.mangaId, chapter);
         });
 
-        // Previous page button
+      
         prevPageBtn.addEventListener('click', function() {
             if (currentState.page > 0) {
                 goToPage(currentState.page - 1);
             }
         });
 
-        // Next page button
+     
         nextPageBtn.addEventListener('click', function() {
             if (currentState.page < currentState.totalPages - 1) {
                 goToPage(currentState.page + 1);
             }
         });
 
-        // Close reader
+        
         closeReader.addEventListener('click', function() {
             readerModal.style.display = 'none';
         });
 
-        // Click outside content to close modal
+       
         readerModal.addEventListener('click', function(e) {
             if (e.target === readerModal) {
                 readerModal.style.display = 'none';
             }
         });
 
-        // Keyboard navigation
+
         document.addEventListener('keydown', function(e) {
             if (readerModal.style.display !== 'flex') return;
             
@@ -574,12 +573,12 @@
             }
         });
 
-        // Add click events to manga cards and read buttons
+        
         mangaCards.forEach((card, index) => {
             const mangaId = card.dataset.mangaId;
             
             card.addEventListener('click', function(e) {
-                // Only open reader if the click wasn't on the read button
+               
                 if (!e.target.classList.contains('read-btn')) {
                     openReader(mangaId);
                 }

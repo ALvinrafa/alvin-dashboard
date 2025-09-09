@@ -295,7 +295,7 @@
         </div>
 
         <div class="days-grid">
-            <!-- Days will be populated by JavaScript -->
+            <!-- hari akan di atur java script -->
         </div>
     </div>
 
@@ -340,10 +340,10 @@
             const eventTitleInput = document.getElementById('event-title');
             const eventDescInput = document.getElementById('event-description');
 
-            // Initialize calendar
+            // inisial calendar
             renderCalendar(currentMonth, currentYear);
 
-            // Event listeners
+            // list acara
             prevMonthBtn.addEventListener('click', () => {
                 currentMonth--;
                 if (currentMonth < 0) {
@@ -398,12 +398,12 @@
                     daysGrid.appendChild(dayCell);
                 }
                 
-                // Current month days
+                // Hari bulan saat ini
                 const today = new Date();
                 for (let i = 1; i <= daysInMonth; i++) {
                     const dayCell = createDayCell(i);
                     
-                    // Highlight today
+                    // Hari highlight
                     if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
                         dayCell.classList.add('today');
                     }
@@ -413,7 +413,7 @@
                     if (events[dateStr]) {
                         dayCell.classList.add('has-event');
                         
-                        // Add event preview
+                        // Kode tambahkan acara
                         const eventPreview = document.createElement('div');
                         eventPreview.className = 'events-preview';
                         eventPreview.textContent = events[dateStr][0].title; // Show first event title
@@ -442,14 +442,14 @@
                         
                         if (this.classList.contains('other-month')) {
                             if (Number(day) > 15) {
-                                // Previous month
+                                // bulan sebelumnya
                                 clickedMonth--;
                                 if (clickedMonth < 0) {
                                     clickedMonth = 11;
                                     clickedYear--;
                                 }
                             } else {
-                                // Next month
+                                // bulan selanjutnya
                                 clickedMonth++;
                                 if (clickedMonth > 11) {
                                     clickedMonth = 0;
@@ -475,7 +475,8 @@
                 cell.appendChild(dayNumber);
                 return cell;
             }
-            
+
+             // Nama bulan
             function getMonthName(month) {
                 const months = [
                     'January', 'February', 'March', 'April', 'May', 'June', 
